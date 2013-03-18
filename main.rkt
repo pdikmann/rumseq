@@ -2,8 +2,11 @@
 
 ;; midi ruckus
 ;; TODO
-;; - use timer as a self-perpetuating instance that modulo's through a supplied list
-;;   until it is issues a stop/pause (it should remember its current timestep)
+;; - interactive note editor
+;; - pipe note editor to seq-ticker
+;; ...
+;; - pattern collection
+;; - tracks
 
 (require (planet evhan/coremidi)
          ;; gl
@@ -12,17 +15,26 @@
          ;; other
          "step-timer.rkt"
          "models.rkt"
-         "note-editor.rkt"
+         "editor.rkt"
          sgl)
 
-;; ============================================================ Functions
-(define note-editor-gl-area (gl-area 320 0 320 240))
-(define (test-viewports)
+;; ============================================================ window areas
+(define editor-area (gl-area 320 0 320 240))
+
+(define (draw-views!)
   ;; clear all
+  ;;(gl-viewport 0 0 640 480)
   ;;(gl-scissor 0 0 640 480)
   ;;(gl-clear-color 1 1 1 1)
   ;;(gl-clear 'color-buffer-bit 'depth-buffer-bit)
-  (draw-note-editor! note-editor-gl-area))
+  (draw-editor! editor-area))
+
+(define (route-event e)
+  (let ([x (send e get-x)]
+        [y (send e get-y)])
+    (when (gl-area-hit? editor-area x y)
+      (let-values ([(x y) (gl-area-relative-event-position editor-area e)])
+        (editor-event e x y)))))
 
 ;; ============================================================ to go
 (define seq-tick (new seq-timer%))
@@ -44,5 +56,6 @@
 ;;(send seq-tick stop)
 ;;(send seq-tick close-midi)
 
-(send canvas paint-with test-viewports)
+(send canvas paint-with draw-views!)
+(send canvas on-event-with route-event)
 (send timer start 100)

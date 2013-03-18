@@ -1,12 +1,16 @@
 #lang racket
 
 (provide notes->events
-         draw-note-editor!)
+         (rename-out [area-draw! draw-editor!])
+         editor-event)
 
+;; ============================================================
 (require "models.rkt"
          "gl-geometry.rkt"
          "gl-timer.rkt"
          sgl)
+
+;; ============================================================ Model
 
 ;; ============================================================ Functions
 ;; turn a list of '(start-step note-value length-in-steps) into events
@@ -40,7 +44,7 @@
                                               127))       ; velo
                             init))]))
 
-(define draw-geom (quad #:color '(1 0 1 1)))
+;; ============================================================ GL
 (define white-key (quad #:color '(1 1 1 1)))
 (define black-key (quad #:color '(.9 .9 .9 1)))
 (define x-raster (quad #:color '(0 0 0 .1)))
@@ -50,15 +54,11 @@
                                [else black-key]))))
 
 
-(define (draw-note-editor! wndw)
+(define (area-draw! wndw)
   (apply gl-viewport (gl-area->list wndw))
   (apply gl-scissor (gl-area->list wndw))
-  ;;(gl-enable 'scissor-test)
-  ;; (let ([clear-color (for/list ([i 4]) (random))])
-  ;;   (apply gl-clear-color clear-color))
   (gl-clear-color .8 .9 1 1)
   (gl-clear 'color-buffer-bit 'depth-buffer-bit)
-  
   ;; projection
   (gl-matrix-mode 'projection)
   (gl-load-identity)
@@ -92,20 +92,17 @@
     (x-raster)
     (gl-translate 2 0 0))
   (gl-pop-matrix)
-  ;; (for ([i (range 1 3)])
-  ;;   (gl-viewport (* i 50) (* i 50) 10 10)
-  ;;   (gl-scissor (* i 50) (* i 50) 10 10)
-  ;; (gl-matrix-mode 'projection)
-  ;; (gl-load-identity)
-  ;; (gl-ortho 0 10
-  ;;           10 0
-  ;;           0 10)
-  ;; (gl-translate 0 0 -1)
-  ;; (gl-matrix-mode 'modelview)
-  ;; (gl-load-identity)
-  ;;   (gl-rotate (* (send timer get-frames) 10) 0 0 1)
-  ;;   (gl-scale 10 5 1)
-  ;;   (draw-geom))
   )
 
-;; ============================================================
+;; (define (draw!)
+;;   (draw! editor-area))
+
+;; ============================================================ Events
+(define (editor-event e x y)
+  (let ([L-down? (send e button-down? 'left)]
+        [L-up? (send e button-up? 'left)]
+        [R-down? (send e button-down? 'right)])
+    (when L-down?
+      (printf "~v ~v\n"
+              (exact->inexact x)
+              (exact->inexact y)))))

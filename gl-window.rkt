@@ -2,14 +2,16 @@
 
 ;; main window and gl canvas with handy helper functions built-in
 
-(provide canvas)
+(provide canvas
+         (struct-out window)
+         (rename-out [*config* main-window]))
 
 ;; ------------------------------------------------------------
 ;; config
-(struct window-config (width height label))
-(define *config* (window-config 640
-                                480
-                                "midi"))
+(struct window (width height label))
+(define *config* (window 640
+                         480
+                         "midi"))
 
 ;; ------------------------------------------------------------
 ;; implementation
@@ -120,13 +122,14 @@
   (when (not canvas)
     (set! frame
           (new killer-frame%
-               [label (window-config-label cfg)]
-               [width (window-config-width cfg)]
-               [height (window-config-height cfg)]))
+               [label (window-label cfg)]
+               [width (window-width cfg)]
+               [height (window-height cfg)]
+               [style '(no-resize-border)]))
     (set! canvas (new gl-canvas%
                       [parent frame]
-                      [min-width (window-config-width cfg)]
-                      [min-height (window-config-height cfg)]))
+                      [min-width (window-width cfg)]
+                      [min-height (window-height cfg)]))
     (send frame show #t)))
 
 (window-init)
