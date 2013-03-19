@@ -2,8 +2,10 @@
 
 ;; midi ruckus
 ;; TODO
-;; - interactive note editor
-;; - pipe note editor to seq-ticker
+;; - turn seq-timer into a step-timer that runs on steps (and not events),
+;;   giving him the ability to run continuously (even on an empty list)
+;; - eliminate the need to turn notes into note-events
+;;   (even though this is more flexible, we just need a simpler step timer)
 ;; ...
 ;; - pattern collection
 ;; - tracks
@@ -48,8 +50,10 @@
         (editor-event e x y)))))
 
 (define (route-char e)
-  (send seq-tick use-notes (send pattern get-notes))
-  (send seq-tick run))
+  (when (eq? (send e get-key-code)
+             'release)    
+    (send seq-tick use-notes (send pattern get-notes))
+    (send seq-tick run)))
 
 ;; ============================================================ to go
 
@@ -67,6 +71,7 @@
     (send seq-tick open-midi)
     (send seq-tick run)))
 
+;;(send seq-tick run)
 ;;(send seq-tick stop)
 ;;(send seq-tick close-midi)
 
