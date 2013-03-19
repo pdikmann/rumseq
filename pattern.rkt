@@ -10,9 +10,14 @@
 (define pattern%
   (class object%
     (super-new)
+    ;; ================================ model
     (define notes (make-hash))
 
-    (define/public (add-note step value [velocity 127] [length 1])
+    ;; ================================ public
+    (define/public (add-note step
+                             value
+                             [velocity 127]
+                             [length 1])
       (hash-set! notes
                  (cons step value)
                  (note step value velocity length)))
@@ -21,4 +26,4 @@
       (hash-remove! notes
                     (cons step value)))
     (define/public (get-notes)
-      notes)))
+      (hash-values notes))))

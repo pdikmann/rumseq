@@ -18,7 +18,7 @@
          "editor.rkt"
          sgl)
 
-;; ============================================================ window areas
+;; ============================================================ Model
 (define full-area (gl-area 0
                            0
                            (window-width main-window)
@@ -28,13 +28,16 @@
                              (/ (window-width main-window) 2)
                              (/ (window-height main-window) 2)))
 
+(define seq-tick (new seq-timer%))
+
+;; ============================================================ Function
 (define (draw-views!)
   ;; clear all
   (apply gl-viewport (gl-area->list full-area))
   (apply gl-scissor (gl-area->list full-area))
   (gl-clear-color .96 .95 .71 1)
   (gl-clear 'color-buffer-bit 'depth-buffer-bit)
-  
+  ;;
   (draw-editor! editor-area))
 
 (define (route-event e)
@@ -44,8 +47,11 @@
       (let-values ([(x y) (gl-area-relative-event-position editor-area e)])
         (editor-event e x y)))))
 
+(define (route-char e)
+  (send seq-tick use-notes (send pattern get-notes))
+  (send seq-tick run))
+
 ;; ============================================================ to go
-(define seq-tick (new seq-timer%))
 
 (define (test)
   (let* ([bpm 148]
@@ -66,4 +72,6 @@
 
 (send canvas paint-with draw-views!)
 (send canvas on-event-with route-event)
+(send canvas on-char-with route-char)
+;;
 (send timer start 100)

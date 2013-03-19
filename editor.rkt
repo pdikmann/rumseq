@@ -2,7 +2,8 @@
 
 (provide notes->events
          (rename-out [area-draw! draw-editor!])
-         editor-event)
+         editor-event
+         pattern)
 
 ;; ============================================================
 (require "models.rkt"
@@ -115,24 +116,23 @@
     (gl-translate 2 0 0))
   (gl-pop-matrix)
   ;; draw notes on top
-  (hash-for-each (send pattern get-notes)
-                 (lambda (k v)
-                   (gl-push-matrix)
-                   (gl-translate (step->x wndw (note-step v))
-                                 (value->y wndw (note-value v))
-                                 0)
-                   (gl-scale (/ (gl-area-width wndw) 16)
-                             (/ (gl-area-height wndw) 37)
-                             1)
-                   ;; fill
-                   (gl-polygon-mode 'front-and-back 'fill)
-                   (gl-color 0 0 0 .5)
-                   (gl-note)
-                   ;; outline
-                   (gl-polygon-mode 'front-and-back 'line)
-                   (gl-color 0 0 0 1)
-                   (gl-note)
-                   (gl-pop-matrix))))
+  (for ([n (send pattern get-notes)])
+    (gl-push-matrix)
+    (gl-translate (step->x wndw (note-step n))
+                  (value->y wndw (note-value n))
+                  0)
+    (gl-scale (/ (gl-area-width wndw) 16)
+              (/ (gl-area-height wndw) 37)
+              1)
+    ;; fill
+    (gl-polygon-mode 'front-and-back 'fill)
+    (gl-color 0 0 0 .5)
+    (gl-note)
+    ;; outline
+    (gl-polygon-mode 'front-and-back 'line)
+    (gl-color 0 0 0 1)
+    (gl-note)
+    (gl-pop-matrix)))
 
 ;; ============================================================ Events
 (define (editor-event e x y)
@@ -155,4 +155,3 @@
       ;(display (send pattern get-notes))
       ;(newline)
       )))
-
