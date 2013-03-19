@@ -9,8 +9,8 @@
 ;; ------------------------------------------------------------
 ;; config
 (struct window (width height label))
-(define *config* (window 640
-                         480
+(define *config* (window 800
+                         600
                          "midi"))
 
 ;; ------------------------------------------------------------

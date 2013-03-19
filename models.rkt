@@ -2,6 +2,9 @@
 
 (provide (struct-out event)
          (struct-out note-event)
+         ;;
+         (struct-out note)
+         ;;
          (struct-out gl-area)
          gl-area->list
          gl-area-hit?
@@ -44,4 +47,7 @@
         #:transparent)
 
 (struct note-event event (on note velocity)
+        #:transparent)
+
+(struct note (step value velocity length)
         #:transparent)

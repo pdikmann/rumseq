@@ -19,14 +19,22 @@
          sgl)
 
 ;; ============================================================ window areas
-(define editor-area (gl-area 320 0 320 240))
+(define full-area (gl-area 0
+                           0
+                           (window-width main-window)
+                           (window-height main-window)))
+(define editor-area (gl-area (/ (window-width main-window) 2)
+                             0
+                             (/ (window-width main-window) 2)
+                             (/ (window-height main-window) 2)))
 
 (define (draw-views!)
   ;; clear all
-  ;;(gl-viewport 0 0 640 480)
-  ;;(gl-scissor 0 0 640 480)
-  ;;(gl-clear-color 1 1 1 1)
-  ;;(gl-clear 'color-buffer-bit 'depth-buffer-bit)
+  (apply gl-viewport (gl-area->list full-area))
+  (apply gl-scissor (gl-area->list full-area))
+  (gl-clear-color .96 .95 .71 1)
+  (gl-clear 'color-buffer-bit 'depth-buffer-bit)
+  
   (draw-editor! editor-area))
 
 (define (route-event e)
