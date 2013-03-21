@@ -18,6 +18,7 @@
 ;; geometry
 (define checker (quad #:color '(.95 .94 .63 1)))
 (define white (quad #:color '(1 1 1 1)))
+(define gl-note (quad))
 
 ;; draw
 (define (draw-board! wndw)
@@ -47,7 +48,7 @@
     (gl-translate x y 0)
     (checker)
     (gl-pop-matrix))
-  ;; patterns
+  ;; patterns (including notes)
   (for ([pt patterns]
         [i (range (length patterns))])
     (gl-push-matrix)
@@ -63,8 +64,30 @@
     (gl-translate 0.05 0.05 0)
     (gl-scale .9 .9 1)
     ;; scale to pattern length
+    (gl-push-matrix)
     (gl-scale (/ (+ (send pt get-length) 1) 16) 1 1)
+    ;; background
+    (gl-polygon-mode 'front-and-back 'fill)
     (white)
+    (gl-pop-matrix)
+    ;; notes
+    (gl-scale 1/16
+              1/36
+              1)
+    (for ([nt (send pt get-notes)])
+      (gl-push-matrix)
+      (gl-translate (note-step nt)
+                    (- 71 (note-value nt)) 0)
+      (gl-scale (note-length nt) 1 1)
+      ;; fill
+      (gl-polygon-mode 'front-and-back 'fill)
+      (gl-color 0 0 0 1)
+      (gl-note)
+      ;; outline
+      ;; (gl-polygon-mode 'front-and-back 'line)
+      ;; (gl-color 0 0 0 1)
+      ;; (gl-note)
+      (gl-pop-matrix))
     (gl-pop-matrix))
   )
 

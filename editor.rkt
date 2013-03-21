@@ -155,7 +155,7 @@
   (gl-scale (/ (gl-area-width wndw) 16)
             (/ (gl-area-height wndw) 37)
             1)
-  (red-dot)
+  ;;(red-dot)
   (gl-translate 1 0 0)
   (gl-scale 16 37 1)
   (curtain)
@@ -199,7 +199,11 @@
       ;; drag pattern length / sustain note
       (when (eq? drag-type 'L)
         (case grab-type
-          [(handle) (send pattern set-length (x->step x))]
-          [(note)   (when last-note (send pattern sustain-note
+          [(handle)
+           ;; drag pattern length
+           (send pattern set-length (x->step x))]
+          [(note)
+           ;; sustain note
+           (when last-note (send pattern sustain-note
                                           last-note
                                           (x->step x)))]))])))
