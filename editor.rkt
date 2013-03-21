@@ -163,6 +163,7 @@
 
 ;; ============================================================ Events
 (define drag-type #f)
+(define grab-type #f)
 (define last-note #f)
 
 (define (editor-event e x y)
@@ -171,27 +172,34 @@
         [R-down? (send e button-down? 'right)]
         [R-up? (send e button-up? 'right)]
         [drag? (send e dragging?)])
-    ;; add note
-    (when L-down?
-      (if (out-of-pianoroll? y)
-          (send pattern set-length (x->step x))
-          (set! last-note
-                (send pattern add-note
-                      (x->step x)
-                      (y->value y))))
-      (set! drag-type 'L))
-    (when L-up?
-      (set! drag-type #f))
-    ;; remove note
-    (when R-down?
+    (cond
+     [L-down?
+      ;; add note / set pattern length
+      (cond [(out-of-pianoroll? y)
+             ;; set pattern length
+             (send pattern set-length (x->step x))
+             (set! grab-type 'handle)]
+            [else
+             ;; add note
+             (set! last-note
+                   (send pattern add-note
+                         (x->step x)
+                         (y->value y)))
+             (set! grab-type 'note)])
+      (set! drag-type 'L)]
+     [L-up?
+      (set! drag-type #f)
+      (set! grab-type #f)]
+     [R-down? 
+      ;; remove note
       (send pattern remove-note
             (x->step x)
-            (y->value y)))
-    ;; sustain note
-    (when drag?
+            (y->value y))]
+     [drag?
+      ;; drag pattern length / sustain note
       (when (eq? drag-type 'L)
-        (if (out-of-pianoroll? y)
-            (send pattern set-length (x->step x))
-            (when last-note (send pattern sustain-note
-                                  last-note
-                                  (x->step x))))))))
+        (case grab-type
+          [(handle) (send pattern set-length (x->step x))]
+          [(note)   (when last-note (send pattern sustain-note
+                                          last-note
+                                          (x->step x)))]))])))
