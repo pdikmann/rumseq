@@ -50,7 +50,9 @@
     (gl-pop-matrix))
   ;; patterns (including notes)
   (for ([pt patterns]
-        [i (range (length patterns))])
+        [i (range (length patterns))]
+        ;;#:when (not (empty? (send pt get-notes)))
+        )
     (gl-push-matrix)
     ;; scale to slot size
     (gl-scale (/ (gl-area-width wndw) 10)
@@ -92,15 +94,19 @@
   )
 
 (define (board-event e x y)
-  (let ([select-x (floor (* x 10))]
+  (let* ([select-x (floor (* x 10))]
         [select-y (floor (* y 3))]
         [L-down? (send e button-down? 'left)]
         ;;[L-up? (send e button-up? 'left)]
-        ;;[R-down? (send e button-down? 'right)]
+        [R-down? (send e button-down? 'right)]
         ;;[R-up? (send e button-up? 'right)]
         ;;[drag? (send e dragging?)]
+        [select (+ (* select-y 10) select-x)]
         )
     (cond
      [L-down?
-      (edit-pattern (list-ref patterns (+ (* select-y 10)
-                                          select-x)))])))
+      (edit-pattern (list-ref patterns select))]
+     [R-down?
+      (set! patterns (append (take patterns select)
+                             (list (new pattern%))
+                             (drop patterns (+ select 1))))])))
