@@ -55,6 +55,9 @@
   (- 72
      (floor (/ y 1/37))))
 
+(define (out-of-pianoroll? y)
+  (< y 1/37))
+
 (define (step->x wndw step)
   (* step (/ (gl-area-width wndw)
           16)))
@@ -69,6 +72,8 @@
 (define gl-note (quad))
 (define white-key (quad #:color '(1 1 1 1)))
 (define black-key (quad #:color '(.9 .9 .9 1)))
+(define red-dot (quad #:color '(1 0 0 1)))
+(define curtain (quad #:color '(0 0 0 .25)))
 (define x-raster (quad #:color '(0 0 0 .1)))
 (define klaviatur (reverse (for/list ([i 36])
                              (case (modulo i 12)
@@ -121,7 +126,8 @@
     (gl-translate (step->x wndw (note-step n))
                   (value->y wndw (note-value n))
                   0)
-    (gl-scale (/ (gl-area-width wndw) 16)
+    (gl-scale (* (/ (gl-area-width wndw) 16)
+                 (note-length n))
               (/ (gl-area-height wndw) 37)
               1)
     ;; fill
@@ -132,26 +138,51 @@
     (gl-polygon-mode 'front-and-back 'line)
     (gl-color 0 0 0 1)
     (gl-note)
-    (gl-pop-matrix)))
+    (gl-pop-matrix))
+  ;; indicate pattern length
+  (gl-polygon-mode 'front-and-back 'fill)
+  (gl-push-matrix)
+  (gl-translate (step->x wndw (send pattern get-length)) 0 0)
+  (gl-scale (/ (gl-area-width wndw) 16)
+            (/ (gl-area-height wndw) 37)
+            1)
+  (red-dot)
+  (gl-translate 1 0 0)
+  (gl-scale 16 37 1)
+  (curtain)
+  (gl-pop-matrix))
 
 ;; ============================================================ Events
+(define drag-type #f)
+(define last-note #f)
+
 (define (editor-event e x y)
   (let ([L-down? (send e button-down? 'left)]
         [L-up? (send e button-up? 'left)]
-        [R-down? (send e button-down? 'right)])
+        [R-down? (send e button-down? 'right)]
+        [R-up? (send e button-up? 'right)]
+        [drag? (send e dragging?)])
     ;; add note
     (when L-down?
-      (send pattern add-note
-            (x->step x)
-            (y->value y))
-      ;(display (send pattern get-notes))
-      ;(newline)
-      )
+      (if (out-of-pianoroll? y)
+          (send pattern set-length (x->step x))
+          (set! last-note
+                (send pattern add-note
+                      (x->step x)
+                      (y->value y))))
+      (set! drag-type 'L))
+    (when L-up?
+      (set! drag-type #f))
     ;; remove note
     (when R-down?
       (send pattern remove-note
             (x->step x)
-            (y->value y))
-      ;(display (send pattern get-notes))
-      ;(newline)
-      )))
+            (y->value y)))
+    ;; sustain note
+    (when drag?
+      (when (eq? drag-type 'L)
+        (if (out-of-pianoroll? y)
+            (send pattern set-length (x->step x))
+            (send pattern sustain-note
+                  last-note
+                  (x->step x)))))))

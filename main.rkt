@@ -21,6 +21,7 @@
          sgl)
 
 ;; ============================================================ Model
+;; gl-areas
 (define full-area (gl-area 0
                            0
                            (window-width main-window)
@@ -29,7 +30,7 @@
                              0
                              (/ (window-width main-window) 2)
                              (/ (window-height main-window) 2)))
-
+;; wip timer/sequencer
 (define seq-tick (new seq-timer%))
 
 ;; ============================================================ Function
@@ -56,20 +57,6 @@
     (send seq-tick run)))
 
 ;; ============================================================ to go
-
-(define (test)
-  (let* ([bpm 148]
-         [notes '((0 60 1)   ; '(start-at-beat, note, length-in-beats)
-                  (1 60 1)
-                  (2 82 2)
-                  (3 42 2)
-                  (5 30 1)
-                  (6 30 1))]
-         [sequence (notes->events notes (/ 60000 bpm))])
-    ;;(play-notes sequence)
-    (send seq-tick use-sequence sequence)
-    (send seq-tick open-midi)
-    (send seq-tick run)))
 
 ;;(send seq-tick run)
 ;;(send seq-tick stop)

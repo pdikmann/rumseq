@@ -50,4 +50,4 @@
         #:transparent)
 
 (struct note (step value velocity length)
-        #:transparent)
+        #:mutable #:transparent)
