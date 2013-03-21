@@ -2,6 +2,8 @@
 
 ;; midi ruckus
 ;; TODO
+;; - new note-struct (start end value velocity) for easier step-sequencing
+;;   (make pattern modulo the note-end by pattern-length for auto-wrapping notes)
 ;; - turn seq-timer into a step-timer that runs on steps (and not events),
 ;;   giving him the ability to run continuously (even on an empty list)
 ;; - eliminate the need to turn notes into note-events
@@ -18,6 +20,7 @@
          "step-timer.rkt"
          "models.rkt"
          "editor.rkt"
+         "board.rkt"
          sgl)
 
 ;; ============================================================ Model
@@ -30,6 +33,10 @@
                              0
                              (/ (window-width main-window) 2)
                              (/ (window-height main-window) 2)))
+(define board-area (gl-area 0
+                            (/ (window-height main-window) 2)
+                            (window-width main-window)
+                            (/ (window-height main-window) 2)))
 ;; wip timer/sequencer
 (define seq-tick (new seq-timer%))
 
@@ -41,14 +48,19 @@
   (gl-clear-color .96 .95 .71 1)
   (gl-clear 'color-buffer-bit 'depth-buffer-bit)
   ;;
-  (draw-editor! editor-area))
+  (draw-editor! editor-area)
+  (draw-board! board-area))
 
+;; TODO remove code duplication (w/ macro?)
 (define (route-event e)
   (let ([x (send e get-x)]
         [y (send e get-y)])
     (when (gl-area-hit? editor-area x y)
       (let-values ([(x y) (gl-area-relative-event-position editor-area e)])
-        (editor-event e x y)))))
+        (editor-event e x y)))
+    (when (gl-area-hit? board-area x y)
+      (let-values ([(x y) (gl-area-relative-event-position board-area e)])
+        (board-event e x y)))))
 
 (define (route-char e)
   (when (eq? (send e get-key-code)

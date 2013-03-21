@@ -1,9 +1,14 @@
 #lang racket
 
-(provide notes->events
-         (rename-out [area-draw! draw-editor!])
+;; editor.rkt provides pattern-editing functionality
+;; like adding notes, removing them, setting pattern length
+
+(provide (rename-out [area-draw! draw-editor!])
          editor-event
-         pattern)
+         edit-pattern
+         ;;notes->events
+         pattern
+         )
 
 ;; ============================================================
 (require "models.rkt"
@@ -12,7 +17,7 @@
          "gl-timer.rkt"
          sgl)
 
-;; ============================================================ Model
+;; ============================================================ Model / Data
 (define pattern (new pattern%))
 
 ;; ============================================================ Functions
@@ -66,6 +71,10 @@
   (* (- 72 value)
      (/ (gl-area-height wndw)
                 37)))
+
+;; swap the pattern
+(define (edit-pattern pat)
+  (set! pattern pat))
 
 ;; ============================================================ GL
 ;; geometry
@@ -183,6 +192,6 @@
       (when (eq? drag-type 'L)
         (if (out-of-pianoroll? y)
             (send pattern set-length (x->step x))
-            (send pattern sustain-note
-                  last-note
-                  (x->step x)))))))
+            (when last-note (send pattern sustain-note
+                                  last-note
+                                  (x->step x))))))))
