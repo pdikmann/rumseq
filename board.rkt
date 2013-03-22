@@ -105,20 +105,21 @@
          ;;[R-up? (send e button-up? 'right)]
          [drag? (send e dragging?)]
          [select (+ (* select-y 10) select-x)]
+         [selected (list-ref patterns select)]
          )
     (cond
      [L-down?
-      (edit-pattern (list-ref patterns select))]
+      (edit-pattern selected)]
      [R-down?
       (set! patterns (append (take patterns select)
                              (list (new pattern%))
                              (drop patterns (+ select 1))))]
      [drag?
       (when (not (holding?))
-        (lift-pattern (list-ref patterns select)))]
+        (lift-pattern selected))]
      [L-up?
       (when (holding?)
         (set! patterns (append (take patterns select)
                                (list (send (drop-pattern!) copy))
                                (drop patterns (+ select 1))))
-        (edit-pattern (list-ref patterns select)))])))
+        (edit-pattern selected))])))

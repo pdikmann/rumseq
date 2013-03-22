@@ -21,9 +21,11 @@
     (define sources '())        ; references to the patterns, in order
     (define unified (new pattern%))     ; single unified pattern
     (define raw-index 0)
+    (define playing? #f)
+    (define stopping? #f)
     ;; ================================ private
     (define (mod-len x)
-      (modulo x (send unified get-length)))
+      (modulo x (max 1 (send unified get-length))))
 
     (define (index)
       (mod-len raw-index))
@@ -31,12 +33,34 @@
     (define (inc-index)
       (set! raw-index
             (mod-len (+ raw-index 1))))
+
+    (define (step)
+      (when playing? (inc-index))
+      (when (and stopping?
+                 (= raw-index 0))
+        (set! playing? #f)
+        (set! stopping? #f)))
+
+    (define (munge-sources!)
+      (send unified set-length (for/sum ([pt sources])
+                                 (send pt get-length))))
     ;; ================================ public
     (define/public (add-pattern pt)
-      (set! sources (reverse (cons pt (reverse sources)))))
-
-    (define/public (get-patterns) sources)
+      (set! sources (reverse (cons pt (reverse sources))))
+      (munge-sources!))
+    (define/public (inc-channel)
+      (set! midi-channel (+ 1 (modulo midi-channel 10))))
+    (define/public (dec-channel)
+      (set! midi-channel (+ 1 (modulo (+ 8 midi-channel) 10))))
+    (define/public (start) (set! playing? #t))
+    (define/public (stop) (set! stopping? #t))
+    (define/public (toggle) (if playing?
+                                (set! stopping? #t)
+                                (set! playing? #t)))
+    (define/public (get-hook) step)
+    (define/public (get-step) raw-index)
     (define/public (get-channel) midi-channel)
+    (define/public (get-patterns) sources) ; TODO remove, debug only
     ))
 
 (define stepper%

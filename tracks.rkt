@@ -40,6 +40,7 @@
 ;; ============================================================ GL
 (define beat (quad #:color '(1 0 0 1)))
 (define checker (quad #:color '(.95 .94 .63 1)))
+(define beat-indicator (quad #:color '(1 1 1 1)))
 (define blackie (quad #:color '(0 0 0 1)))
 (define-runtime-path font-path "gfx/font.png")
 (define letters (for*/list ([y 3]
@@ -95,8 +96,13 @@
        (gl-scale 1 0.5 1)
        (gl-color 1 1 1 1)
        ((list-ref letters (send tr get-channel))))
-      ;; show patterns
+      ;; a bit to the right for the rest of the data ...
       (gl-translate 4 0 0)
+      ;; beat indicator
+      (with-gl-matrix
+       (gl-translate (send tr get-step) 0 0)
+       (beat-indicator))
+      ;; patterns
       (for ([pt (send tr get-patterns)])
         ;; border
         (with-gl-matrix
@@ -119,15 +125,28 @@
 
 ;; ============================================================ Events
 (define (tracks-event e x y)
-  (let ( ;;[select-x (floor (* x 10))]
-        [select (floor (* y 6))]
-        ;;[select (+ (* select-y 10) select-x)]
-        [L-down? (send e button-down? 'left)]
-        [L-up? (send e button-up? 'left)]
-        [R-down? (send e button-down? 'right)]
-        ;;[R-up? (send e button-up? 'right)]
-        [drag? (send e dragging?)])
+  (let* ([select (floor (* y 6))]
+         [selected (list-ref tracks select)]
+         [in-upper-half? (= 0 (modulo (floor (* y 12)) 2))]
+         [in-data-column? (< x 4/68)]
+         [L-down? (send e button-down? 'left)]
+         [L-up? (send e button-up? 'left)]
+         [R-down? (send e button-down? 'right)]
+         ;;[R-up? (send e button-up? 'right)]
+         [drag? (send e dragging?)])
     (cond
+     [(and L-down?
+           in-data-column?
+           (not in-upper-half?))
+      (send selected toggle)]
+     [(and L-down?
+           in-data-column?
+           in-upper-half?)
+      (send selected inc-channel)]
+     [(and R-down?
+           in-data-column?
+           in-upper-half?)
+      (send selected dec-channel)]
      [L-up?
       (when (holding?)
         (send (list-ref tracks select)
@@ -136,5 +155,8 @@
                     copy)))])))
 
 ;; ============================================================ to go
+(for ([mt tracks])
+  (send stepper add-hook (send mt get-hook)))
+
 (send stepper run)
 
