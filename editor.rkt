@@ -183,7 +183,7 @@
             [else
              ;; add note
              (set! last-note
-                   (send pattern add-note
+                   (send pattern put-note
                          (x->step x)
                          (y->value y)))
              (set! grab-type 'note)])

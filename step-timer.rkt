@@ -42,8 +42,29 @@
         (set! stopping? #f)))
 
     (define (munge-sources!)
+      ;; for each pattern:
+      ;; take each note
+      ;; add it to unified
+      ;; ! omit if start is beyond pattern length
+      ;; + modify start / stop by current pattern offset
+      ;; + modulo stop if it is after unified length
       (send unified set-length (for/sum ([pt sources])
-                                 (send pt get-length))))
+                                 (send pt get-length)))
+      (for/list ([i (length sources)])
+        (let* ([pt (list-ref sources i)]
+               [offset (for/sum ([pt (take sources i)])
+                         (send pt get-length))])
+          (for ([nt (send pt get-notes)])
+            (when (<= (alt-note-start nt)
+                      (send pt get-length))
+              (send unified add-note
+                    (+ offset (alt-note-start nt))
+                    (modulo (+ offset (alt-note-stop nt))
+                            (send unified get-length))
+                    (alt-note-value nt)
+                    (alt-note-velocity nt))))))
+      (printf "~v\n" (send unified get-notes)))
+
     ;; ================================ public
     (define/public (add-pattern pt)
       (set! sources (reverse (cons pt (reverse sources))))

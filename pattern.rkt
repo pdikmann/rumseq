@@ -15,11 +15,24 @@
     (define length 0)
 
     ;; ================================ public
-    (define/public (add-note start
+    ;; for putting notes w/ unknown end
+    (define/public (put-note start
                              value
                              [velocity 127])
       (let ([nt (alt-note start
                           (+ start 1)
+                          value
+                          velocity)])
+        (hash-set! notes (cons start value) nt)
+        nt))
+
+    ;; for transfer of known notes
+    (define/public (add-note start
+                             stop
+                             value
+                             velocity)
+      (let ([nt (alt-note start
+                          stop
                           value
                           velocity)])
         (hash-set! notes (cons start value) nt)

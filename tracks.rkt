@@ -90,11 +90,12 @@
       ;; show track data (channel, playing)
       (with-gl-matrix
        (gl-scale 4 1 1)
-       (gl-polygon-mode 'front-and-back 'line)
-       (blackie)
+       ;;(gl-polygon-mode 'front-and-back 'line)
+       ;;(blackie)
        (gl-polygon-mode 'front-and-back 'fill)
        (gl-scale 1 0.5 1)
-       (gl-color 1 1 1 1)
+       ;;(gl-color 1 1 1 1)
+       (gl-color .8 .9 1 1)
        ((list-ref letters (send tr get-channel))))
       ;; a bit to the right for the rest of the data ...
       (gl-translate 4 0 0)
