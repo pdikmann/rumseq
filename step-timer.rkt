@@ -18,8 +18,8 @@
     (init connection)
     ;; ================================ model
     (define midi-channel 1)
-    (define sources '()) ; references to the patterns, in order
-    (define unified (new pattern%)) ; single unified pattern
+    (define sources '())        ; references to the patterns, in order
+    (define unified (new pattern%))     ; single unified pattern
     (define raw-index 0)
     ;; ================================ private
     (define (mod-len x)
@@ -33,11 +33,10 @@
             (mod-len (+ raw-index 1))))
     ;; ================================ public
     (define/public (add-pattern pt)
-      (set! sources (cons pt
-                          sources)))
+      (set! sources (reverse (cons pt (reverse sources)))))
 
-    (define/public (show-patterns)
-      sources)
+    (define/public (get-patterns) sources)
+    (define/public (get-channel) midi-channel)
     ))
 
 (define stepper%

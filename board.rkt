@@ -68,7 +68,7 @@
     (gl-scale .9 .9 1)
     ;; scale to pattern length
     (gl-push-matrix)
-    (gl-scale (/ (+ (send pt get-length) 1) 16) 1 1)
+    (gl-scale (/ (send pt get-length) 16) 1 1)
     ;; background
     (gl-polygon-mode 'front-and-back 'fill)
     (white)

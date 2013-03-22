@@ -157,7 +157,7 @@
             (/ (gl-area-height wndw) 37)
             1)
   ;;(red-dot)
-  (gl-translate 1 0 0)
+  ;;(gl-translate 1 0 0)
   (gl-scale 16 37 1)
   (curtain)
   (gl-pop-matrix))
@@ -178,7 +178,7 @@
       ;; add note / set pattern length
       (cond [(out-of-pianoroll? y)
              ;; set pattern length
-             (send pattern set-length (x->step x))
+             (send pattern set-length (+ 1 (x->step x)))
              (set! grab-type 'handle)]
             [else
              ;; add note
@@ -202,7 +202,7 @@
         (case grab-type
           [(handle)
            ;; drag pattern length
-           (send pattern set-length (x->step x))]
+           (send pattern set-length (+ 1 (x->step x)))]
           [(note)
            ;; sustain note
            (when last-note (send pattern sustain-note

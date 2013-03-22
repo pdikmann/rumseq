@@ -21,9 +21,7 @@
 
 ;; ================================================== Model / Data
 (define midi-connection (midi-open))
-
 (define stepper (new stepper%))
-
 (define tracks (for/list ([i 6])
                  (new midi-track%
                       [connection midi-connection])))
@@ -32,9 +30,17 @@
 (define (add-pattern trk pt)
   #f)
 
+(define-syntax with-gl-matrix
+  (syntax-rules ()
+    [(_ f ...) (begin
+                 (gl-push-matrix)
+                 f ...
+                 (gl-pop-matrix))]))
+
 ;; ============================================================ GL
 (define beat (quad #:color '(1 0 0 1)))
 (define checker (quad #:color '(.95 .94 .63 1)))
+(define blackie (quad #:color '(0 0 0 1)))
 (define-runtime-path font-path "gfx/font.png")
 (define letters (for*/list ([y 3]
                             [x 16])
@@ -61,21 +67,55 @@
   (gl-matrix-mode 'modelview)
   (gl-load-identity)
   ;; stripes
-  (gl-push-matrix)
-  (gl-scale (gl-area-width wndw)
-            (/ (gl-area-height wndw) 6)
-            1)
-  (for ([i 3])
-    (checker)
-    (gl-translate 0 2 0))
-  (gl-pop-matrix)
+  (gl-polygon-mode 'front-and-back 'fill)
+  (with-gl-matrix (gl-scale (gl-area-width wndw)
+                            (/ (gl-area-height wndw) 6)
+                            1)
+                  (for ([i 3])
+                    (checker)
+                    (gl-translate 0 2 0)))
   ;; visible beat
-  (gl-push-matrix)
-  (gl-scale 10 10 0)
-  (when (send stepper visible-beat?)
-    (beat))
-  (gl-pop-matrix)
-  )
+  (with-gl-matrix (gl-scale 10 10 0)
+                  (when (send stepper visible-beat?)
+                    (beat)))
+  ;; tracks
+  (with-gl-matrix 
+   (gl-scale (gl-area-width wndw)
+             (/ (gl-area-height wndw) 6)
+             1)
+   (for ([tr tracks])
+     (with-gl-matrix
+      (gl-scale 1/68 1 1)
+      ;; show track data (channel, playing)
+      (with-gl-matrix
+       (gl-scale 4 1 1)
+       (gl-polygon-mode 'front-and-back 'line)
+       (blackie)
+       (gl-polygon-mode 'front-and-back 'fill)
+       (gl-scale 1 0.5 1)
+       (gl-color 1 1 1 1)
+       ((list-ref letters (send tr get-channel))))
+      ;; show patterns
+      (gl-translate 4 0 0)
+      (for ([pt (send tr get-patterns)])
+        ;; border
+        (with-gl-matrix
+         (gl-scale (send pt get-length) 1 1)
+         (gl-polygon-mode 'front-and-back 'line)
+         (blackie)
+         (gl-polygon-mode 'front-and-back 'fill))
+        ;; notes
+        (with-gl-matrix
+         (gl-scale 1 1/36 1)
+         (for ([nt (send pt get-notes)])
+           (with-gl-matrix
+            (gl-translate (alt-note-start nt)
+                          (- 71 (alt-note-value nt)) 0)
+            (gl-scale (- (alt-note-stop nt)
+                         (alt-note-start nt)) 1 1)
+            (blackie))))                          ; end notes
+        (gl-translate (send pt get-length) 0 0))) ; end patterns
+     (gl-translate 0 1 0))))
 
 ;; ============================================================ Events
 (define (tracks-event e x y)
