@@ -21,6 +21,7 @@
          "models.rkt"
          "editor.rkt"
          "board.rkt"
+         "tracks.rkt"
          sgl)
 
 ;; ============================================================ Model
@@ -29,14 +30,19 @@
                            0
                            (window-width main-window)
                            (window-height main-window)))
-(define editor-area (gl-area (/ (window-width main-window) 2)
+(define editor-area (gl-area (/ (window-width main-window) 2) ; bottom right
                              0
                              (/ (window-width main-window) 2)
                              (/ (window-height main-window) 2)))
-(define board-area (gl-area 0
+(define board-area (gl-area 0                                 ; top
                             (/ (window-height main-window) 2)
                             (window-width main-window)
                             (/ (window-height main-window) 2)))
+(define tracks-area (gl-area 0                                ; bottom left
+                             0
+                             (/ (window-width main-window) 2)
+                             (/ (window-height main-window) 2)))
+
 ;; wip timer/sequencer
 (define seq-tick (new seq-timer%))
 
@@ -49,7 +55,8 @@
   (gl-clear 'color-buffer-bit 'depth-buffer-bit)
   ;;
   (draw-editor! editor-area)
-  (draw-board! board-area))
+  (draw-board! board-area)
+  (draw-tracks! tracks-area))
 
 ;; TODO remove code duplication (w/ macro?)
 (define (route-event e)
@@ -63,10 +70,12 @@
         (board-event e x y)))))
 
 (define (route-char e)
-  (when (eq? (send e get-key-code)
-             'release)    
-    (send seq-tick use-notes (send pattern get-notes))
-    (send seq-tick run)))
+  ;; (when (eq? (send e get-key-code)
+  ;;            'release)    
+  ;;   (send seq-tick use-notes (send pattern get-notes))
+  ;;   (send seq-tick run))
+  #t
+  )
 
 ;; ============================================================ to go
 
@@ -78,4 +87,4 @@
 (send canvas on-event-with route-event)
 (send canvas on-char-with route-char)
 ;;
-(send timer start 100)
+(send timer start 16)

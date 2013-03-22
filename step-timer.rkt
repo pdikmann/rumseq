@@ -2,12 +2,68 @@
 
 ;; timer
 
-(provide seq-timer%)
+(provide seq-timer%
+         stepper%
+         midi-track%)
 
 (require (planet evhan/coremidi)
          (only-in racket/gui/base
                   timer%)
+         "pattern.rkt"
          "models.rkt")
+
+(define midi-track%
+  (class object%
+    (super-new)
+    (init connection)
+    ;; ================================ model
+    (define midi-channel 1)
+    (define sources '()) ; references to the patterns, in order
+    (define unified (new pattern%)) ; single unified pattern
+    (define raw-index 0)
+    ;; ================================ private
+    (define (mod-len x)
+      (modulo x (send unified get-length)))
+
+    (define (index)
+      (mod-len raw-index))
+
+    (define (inc-index)
+      (set! raw-index
+            (mod-len (+ raw-index 1))))
+    ;; ================================ public
+    ;;(define (get-))
+    ))
+
+(define stepper%
+  (class timer%
+    (super-new)
+    (inherit start)
+    ;; ================================ Model
+    (define bpm 120)
+    (define hooks '())
+    (define visible-beat #f)
+    ;; ================================ Private
+    (define/override (notify)
+      (for ([h hooks])
+        (h))
+      (set! visible-beat #t)
+      (start (floor (/ 15000 bpm)) #t))
+    ;; ================================ public
+    (define/public (add-hook h)
+      (set! hooks (cons h hooks)))
+    (define/public (run)
+      (start (floor (/ 15000 bpm)) #t))
+    (define/public (set-bpm i)
+      (set! bpm i))
+    (define/public (get-bpm)
+      bpm)
+    (define/public (visible-beat?)
+      (if visible-beat
+          (begin (set! visible-beat #f)
+                 #t)
+          #f))
+    ))
 
 (define seq-timer%
   (class timer%

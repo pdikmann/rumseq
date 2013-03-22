@@ -51,3 +51,6 @@
 
 (struct note (step value velocity length)
         #:mutable #:transparent)
+
+(struct alt-note (start stop value velocity)
+        #:mutable #:transparent)

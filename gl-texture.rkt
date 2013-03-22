@@ -30,7 +30,9 @@
 
 (define (tex-from-file file) 
   (let* ([texnum (glGenTextures 1)]
-         [bmp (read-bitmap (if (path? file) (path->string file) file))]
+         [bmp (read-bitmap (if (path? file)
+                               (path->string file)
+                               file))]
          [width (send bmp get-width)]
          [height (send bmp get-height)]
          [rgba (argb->rgba (bitmap->argb bmp))]
