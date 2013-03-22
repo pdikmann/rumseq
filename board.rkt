@@ -78,9 +78,10 @@
               1)
     (for ([nt (send pt get-notes)])
       (gl-push-matrix)
-      (gl-translate (note-step nt)
-                    (- 71 (note-value nt)) 0)
-      (gl-scale (note-length nt) 1 1)
+      (gl-translate (alt-note-start nt)
+                    (- 71 (alt-note-value nt)) 0)
+      (gl-scale (- (alt-note-stop nt)
+                   (alt-note-start nt)) 1 1)
       ;; fill
       (gl-polygon-mode 'front-and-back 'fill)
       (gl-color 0 0 0 1)

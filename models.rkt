@@ -4,6 +4,7 @@
          (struct-out note-event)
          ;;
          (struct-out note)
+         (struct-out alt-note)
          ;;
          (struct-out gl-area)
          gl-area->list

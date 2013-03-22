@@ -15,18 +15,18 @@
     (define length 0)
 
     ;; ================================ public
-    (define/public (add-note step
+    (define/public (add-note start
                              value
-                             [velocity 127]
-                             [length 1])
-      (let ([nt (note step value velocity length)])
-        (hash-set! notes (cons step value) nt)
+                             [velocity 127])
+      (let ([nt (alt-note start
+                          (+ start 1)
+                          value
+                          velocity)])
+        (hash-set! notes (cons start value) nt)
         nt))
 
-    (define/public (sustain-note nt step)
-      (set-note-length! nt (+ (- step
-                                 (note-step nt))
-                              1)))
+    (define/public (sustain-note nt stop)
+      (set-alt-note-stop! nt (max stop (+ 1 (alt-note-start nt)))))
 
     (define/public (remove-note step value)
       (hash-remove! notes (cons step value)))
