@@ -67,7 +67,10 @@
         (editor-event e x y)))
     (when (gl-area-hit? board-area x y)
       (let-values ([(x y) (gl-area-relative-event-position board-area e)])
-        (board-event e x y)))))
+        (board-event e x y)))
+    (when (gl-area-hit? tracks-area x y)
+      (let-values ([(x y) (gl-area-relative-event-position tracks-area e)])
+        (tracks-event e x y)))))
 
 (define (route-char e)
   ;; (when (eq? (send e get-key-code)

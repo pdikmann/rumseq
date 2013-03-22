@@ -31,8 +31,17 @@
     (define/public (remove-note step value)
       (hash-remove! notes (cons step value)))
 
+    (define/public (set-notes hsh)
+      (set! notes hsh))
+
     (define/public (set-length i)
       (set! length i))
+
+    (define/public (copy)
+      (let ([pt (new pattern%)])
+        (send pt set-notes (hash-copy notes))
+        (send pt set-length length)
+        pt))
 
     (define/public (get-notes)
       (hash-values notes))

@@ -7,6 +7,7 @@
 
 (require sgl
          "models.rkt"
+         "drag-holder.rkt"
          "pattern.rkt"
          "editor.rkt"
          "gl-geometry.rkt")
@@ -94,20 +95,30 @@
     (gl-pop-matrix))
   )
 
+;; ============================================================ Events
 (define (board-event e x y)
   (let* ([select-x (floor (* x 10))]
-        [select-y (floor (* y 3))]
-        [L-down? (send e button-down? 'left)]
-        ;;[L-up? (send e button-up? 'left)]
-        [R-down? (send e button-down? 'right)]
-        ;;[R-up? (send e button-up? 'right)]
-        ;;[drag? (send e dragging?)]
-        [select (+ (* select-y 10) select-x)]
-        )
+         [select-y (floor (* y 3))]
+         [L-down? (send e button-down? 'left)]
+         [L-up? (send e button-up? 'left)]
+         [R-down? (send e button-down? 'right)]
+         ;;[R-up? (send e button-up? 'right)]
+         [drag? (send e dragging?)]
+         [select (+ (* select-y 10) select-x)]
+         )
     (cond
      [L-down?
       (edit-pattern (list-ref patterns select))]
      [R-down?
       (set! patterns (append (take patterns select)
                              (list (new pattern%))
-                             (drop patterns (+ select 1))))])))
+                             (drop patterns (+ select 1))))]
+     [drag?
+      (when (not (holding?))
+        (lift-pattern (list-ref patterns select)))]
+     [L-up?
+      (when (holding?)
+        (set! patterns (append (take patterns select)
+                               (list (send (drop-pattern!) copy))
+                               (drop patterns (+ select 1))))
+        (edit-pattern (list-ref patterns select)))])))

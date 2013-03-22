@@ -32,7 +32,12 @@
       (set! raw-index
             (mod-len (+ raw-index 1))))
     ;; ================================ public
-    ;;(define (get-))
+    (define/public (add-pattern pt)
+      (set! sources (cons pt
+                          sources)))
+
+    (define/public (show-patterns)
+      sources)
     ))
 
 (define stepper%

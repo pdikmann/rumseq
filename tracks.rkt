@@ -7,11 +7,13 @@
 
 
 (provide add-pattern
-         draw-tracks!)
+         draw-tracks!
+         tracks-event)
 
 (require (planet evhan/coremidi)
          "step-timer.rkt"
          "models.rkt"
+         "drag-holder.rkt"
          "gl-geometry.rkt"
          "gl-texture.rkt"
          sgl
@@ -74,6 +76,24 @@
     (beat))
   (gl-pop-matrix)
   )
+
+;; ============================================================ Events
+(define (tracks-event e x y)
+  (let ( ;;[select-x (floor (* x 10))]
+        [select (floor (* y 6))]
+        ;;[select (+ (* select-y 10) select-x)]
+        [L-down? (send e button-down? 'left)]
+        [L-up? (send e button-up? 'left)]
+        [R-down? (send e button-down? 'right)]
+        ;;[R-up? (send e button-up? 'right)]
+        [drag? (send e dragging?)])
+    (cond
+     [L-up?
+      (when (holding?)
+        (send (list-ref tracks select)
+              add-pattern
+              (send (drop-pattern!)
+                    copy)))])))
 
 ;; ============================================================ to go
 (send stepper run)
