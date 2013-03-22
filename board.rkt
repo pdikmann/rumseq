@@ -108,18 +108,23 @@
          [selected (list-ref patterns select)]
          )
     (cond
+     ;; edit
      [L-down?
       (edit-pattern selected)]
+     ;; clear
      [R-down?
       (set! patterns (append (take patterns select)
                              (list (new pattern%))
                              (drop patterns (+ select 1))))]
+     ;; lift
      [drag?
       (when (not (holding?))
         (lift-pattern selected))]
+     ;; drop / copy
      [L-up?
       (when (holding?)
         (set! patterns (append (take patterns select)
                                (list (send (drop-pattern!) copy))
                                (drop patterns (+ select 1))))
-        (edit-pattern selected))])))
+        ;; cant use SELECTED here - need fresh reference
+        (edit-pattern (list-ref patterns select)))])))

@@ -11,8 +11,10 @@
          tracks-event)
 
 (require (planet evhan/coremidi)
-         "step-timer.rkt"
+         ;;"step-timer.rkt"
          "models.rkt"
+         "stepper.rkt"
+         "midi-track.rkt"
          "drag-holder.rkt"
          "gl-geometry.rkt"
          "gl-texture.rkt"
