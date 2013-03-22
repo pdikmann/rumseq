@@ -136,24 +136,32 @@
          ;;[R-up? (send e button-up? 'right)]
          [drag? (send e dragging?)])
     (cond
+     ;; toggle playing
      [(and L-down?
            in-data-column?
            (not in-upper-half?))
       (send selected toggle)]
+     ;; change channel: increment
      [(and L-down?
            in-data-column?
            in-upper-half?)
       (send selected inc-channel)]
+     ;; change channel: decrement
      [(and R-down?
            in-data-column?
            in-upper-half?)
       (send selected dec-channel)]
+     ;; drop pattern
      [L-up?
       (when (holding?)
         (send (list-ref tracks select)
               add-pattern
               (send (drop-pattern!)
-                    copy)))])))
+                    copy)))]
+     ;; clear track
+     [(and R-down?
+           (not in-data-column?))
+      (send selected clear)])))
 
 ;; ============================================================ to go
 (for ([mt tracks])

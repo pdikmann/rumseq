@@ -17,6 +17,7 @@
     (super-new)
     (init connection)
     ;; ================================ model
+    (define midi-connection connection)
     (define midi-channel 1)
     (define sources '())        ; references to the patterns, in order
     (define unified (new pattern%))     ; single unified pattern
@@ -34,8 +35,29 @@
       (set! raw-index
             (mod-len (+ raw-index 1))))
 
+    (define (note-off? nt)
+      (= (alt-note-stop nt) raw-index))
+
+    (define (note-on? nt)
+      (= (alt-note-start nt) raw-index))
+
     (define (step)
-      (when playing? (inc-index))
+      (when playing?
+        (let ([offs (filter note-off? (send unified get-notes))]
+              [ons (filter note-on? (send unified get-notes))])
+          ;; turn off first
+          (for ([nt offs])
+            (note-off midi-connection
+                      midi-channel
+                      (alt-note-value nt)
+                      (alt-note-velocity nt)))
+          ;; turn ons second
+          (for ([nt ons])
+            (note-on midi-connection
+                     midi-channel
+                     (alt-note-value nt)
+                     (alt-note-velocity nt))))
+        (inc-index))
       (when (and stopping?
                  (= raw-index 0))
         (set! playing? #f)
@@ -63,9 +85,13 @@
                             (send unified get-length))
                     (alt-note-value nt)
                     (alt-note-velocity nt))))))
-      (printf "~v\n" (send unified get-notes)))
+      ;;(printf "~v\n" (send unified get-notes))
+      )
 
     ;; ================================ public
+    (define/public (clear)
+      (set! sources '())
+      (set! unified (new pattern%)))
     (define/public (add-pattern pt)
       (set! sources (reverse (cons pt (reverse sources))))
       (munge-sources!))
@@ -81,6 +107,7 @@
     (define/public (get-hook) step)
     (define/public (get-step) raw-index)
     (define/public (get-channel) midi-channel)
+    (define/public (get-playing?) playing?)
     (define/public (get-patterns) sources) ; TODO remove, debug only
     ))
 
@@ -111,8 +138,7 @@
       (if visible-beat
           (begin (set! visible-beat #f)
                  #t)
-          #f))
-    ))
+          #f))))
 
 (define seq-timer%
   (class timer%
