@@ -1,10 +1,6 @@
 #lang racket
 
-(provide (struct-out event)
-         (struct-out note-event)
-         ;;
-         (struct-out note)
-         (struct-out alt-note)
+(provide (struct-out alt-note)
          ;;
          (struct-out gl-area)
          gl-area->list
@@ -43,15 +39,6 @@
                        (gl-area-height a)))
                (gl-area-height a)))))
 
-;; ============================================================ events
-(struct event (time)
-        #:transparent)
-
-(struct note-event event (on note velocity)
-        #:transparent)
-
-(struct note (step value velocity length)
-        #:mutable #:transparent)
-
+;; ============================================================ notes
 (struct alt-note (start stop value velocity)
         #:mutable #:transparent)

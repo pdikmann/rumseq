@@ -6,8 +6,7 @@
 (provide (rename-out [area-draw! draw-editor!])
          editor-event
          edit-pattern
-         ;;notes->events
-         pattern
+         ;pattern
          )
 
 ;; ============================================================
@@ -21,37 +20,6 @@
 (define pattern (new pattern%))
 
 ;; ============================================================ Functions
-;; turn a list of '(start-step note-value length-in-steps) into events
-(define (notes->events notes [step 500] [init '()])
-  (match notes
-    ['() (sort init
-               (lambda (a b)
-                 (if (= (event-time a)
-                        (event-time b))
-                     ;; at same time, note-off takes precedence
-                     (if (and (not (note-event-on a))
-                              (note-event-on b))
-                         #t
-                         #f)
-                     ;; else
-                     (< (event-time a)
-                        (event-time b))))
-               ;; #:key event-time
-               )]
-    [(cons head tail)
-     (notes->events tail
-                    step
-                    (append (list (note-event (* step (car head)) ; time
-                                              #t                  ; on
-                                              (cadr head) ; note
-                                              127)        ; velo
-                                  (note-event (+ (* step (car head))
-                                                 (* step (caddr head))) ; time
-                                              #f          ; off
-                                              (cadr head) ; note
-                                              127))       ; velo
-                            init))]))
-
 ;; helpers
 (define (x->step x)
   (floor (/ x 1/16)))
@@ -84,6 +52,7 @@
 (define red-dot (quad #:color '(1 0 0 1)))
 (define curtain (quad #:color '(0 0 0 .25)))
 (define x-raster (quad #:color '(0 0 0 .1)))
+(define x-raster-hard (quad #:color '(0 0 0 .3)))
 (define klaviatur (reverse (for/list ([i 36])
                              (case (modulo i 12)
                                [(0 2 4 5 7 9 11) white-key]
@@ -122,6 +91,16 @@
   (gl-polygon-mode 'front-and-back 'line)
   (gl-push-matrix)
   (gl-translate 0 -1 0)
+  ;; 4steps
+  (gl-push-matrix)
+  (gl-scale (/ (gl-area-width wndw) 4)
+            (+ (gl-area-height wndw) 1)
+            1)
+  (for ([i 2])
+    (x-raster-hard)
+    (gl-translate 2 0 0))
+  (gl-pop-matrix)
+  ;; 16steps
   (gl-scale (/ (gl-area-width wndw) 16)
             (+ (gl-area-height wndw) 1)
             1)

@@ -23,10 +23,6 @@
   )
 
 (define (drop-pattern!)
-  ;; (let ([o hold])
-  ;;   (set! hold #f)
-  ;;   (send canvas set-cursor #f)
-  ;;   o)
   (begin0
       hold
     (set! hold #f)

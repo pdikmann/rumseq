@@ -61,16 +61,10 @@
       (let-values ([(x y) (gl-area-relative-event-position tracks-area e)])
         (tracks-event e x y)))))
 
-(define (route-char e)
-  ;; (when (eq? (send e get-key-code)
-  ;;            'release)    
-  ;;   (send seq-tick use-notes (send pattern get-notes))
-  ;;   (send seq-tick run))
-  #t
-  )
+;; TODO think about keyboard interface after first live test run
+(define (route-char e) #f)
 
 ;; ============================================================ to go
-
 (send canvas paint-with draw-views!)
 (send canvas on-event-with route-event)
 (send canvas on-char-with route-char)
