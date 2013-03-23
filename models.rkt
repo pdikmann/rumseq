@@ -1,6 +1,6 @@
 #lang racket
 
-(provide (struct-out alt-note)
+(provide (struct-out note)
          ;;
          (struct-out gl-area)
          gl-area->list
@@ -40,5 +40,5 @@
                (gl-area-height a)))))
 
 ;; ============================================================ notes
-(struct alt-note (start stop value velocity)
+(struct note (start stop value velocity)
         #:mutable #:transparent)

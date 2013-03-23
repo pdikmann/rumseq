@@ -34,10 +34,10 @@
             (mod-len (+ raw-index 1))))
 
     (define (note-off? nt)
-      (= (alt-note-stop nt) raw-index))
+      (= (note-stop nt) raw-index))
 
     (define (note-on? nt)
-      (= (alt-note-start nt) raw-index))
+      (= (note-start nt) raw-index))
 
     (define (step)
       (when playing?
@@ -47,14 +47,14 @@
           (for ([nt offs])
             (note-off midi-connection
                       midi-channel
-                      (alt-note-value nt)
-                      (alt-note-velocity nt)))
+                      (note-value nt)
+                      (note-velocity nt)))
           ;; turn ons second
           (for ([nt ons])
             (note-on midi-connection
                      midi-channel
-                     (alt-note-value nt)
-                     (alt-note-velocity nt))))
+                     (note-value nt)
+                     (note-velocity nt))))
         (inc-index))
       (when (and stopping?
                  (= raw-index 0))
@@ -75,14 +75,14 @@
                [offset (for/sum ([pt (take sources i)])
                          (send pt get-length))])
           (for ([nt (send pt get-notes)])
-            (when (<= (alt-note-start nt)
+            (when (<= (note-start nt)
                       (send pt get-length))
               (send unified add-note
-                    (+ offset (alt-note-start nt))
-                    (modulo (+ offset (alt-note-stop nt))
+                    (+ offset (note-start nt))
+                    (modulo (+ offset (note-stop nt))
                             (send unified get-length))
-                    (alt-note-value nt)
-                    (alt-note-velocity nt)))))))
+                    (note-value nt)
+                    (note-velocity nt)))))))
 
     ;; ================================ public
     (define/public (clear)

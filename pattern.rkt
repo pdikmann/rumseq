@@ -19,7 +19,7 @@
     (define/public (put-note start
                              value
                              [velocity 127])
-      (let ([nt (alt-note start
+      (let ([nt (note start
                           (+ start 1)
                           value
                           velocity)])
@@ -31,7 +31,7 @@
                              stop
                              value
                              velocity)
-      (let ([nt (alt-note start
+      (let ([nt (note start
                           stop
                           value
                           velocity)])
@@ -39,7 +39,7 @@
         nt))
 
     (define/public (sustain-note nt stop)
-      (set-alt-note-stop! nt (max stop (+ 1 (alt-note-start nt)))))
+      (set-note-stop! nt (max stop (+ 1 (note-start nt)))))
 
     (define/public (remove-note step value)
       (hash-remove! notes (cons step value)))

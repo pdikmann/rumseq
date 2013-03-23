@@ -111,12 +111,12 @@
   ;; draw notes on top
   (for ([n (send pattern get-notes)])
     (gl-push-matrix)
-    (gl-translate (step->x wndw (alt-note-start n))
-                  (value->y wndw (alt-note-value n))
+    (gl-translate (step->x wndw (note-start n))
+                  (value->y wndw (note-value n))
                   0)
     (gl-scale (* (/ (gl-area-width wndw) 16)
-                 (- (alt-note-stop n)
-                    (alt-note-start n)))
+                 (- (note-stop n)
+                    (note-start n)))
               (/ (gl-area-height wndw) 37)
               1)
     ;; fill

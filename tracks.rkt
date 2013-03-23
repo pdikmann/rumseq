@@ -118,10 +118,10 @@
          (gl-scale 1 1/36 1)
          (for ([nt (send pt get-notes)])
            (with-gl-matrix
-            (gl-translate (alt-note-start nt)
-                          (- 71 (alt-note-value nt)) 0)
-            (gl-scale (- (alt-note-stop nt)
-                         (alt-note-start nt)) 1 1)
+            (gl-translate (note-start nt)
+                          (- 71 (note-value nt)) 0)
+            (gl-scale (- (note-stop nt)
+                         (note-start nt)) 1 1)
             (blackie))))                          ; end notes
         (gl-translate (send pt get-length) 0 0))) ; end patterns
      (gl-translate 0 1 0))))
