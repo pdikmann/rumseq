@@ -9,9 +9,9 @@
 ;; ------------------------------------------------------------
 ;; config
 (struct window (width height label))
-(define *config* (window 800
-                         600
-                         "midi"))
+(define *config* (window 1200
+                         700
+                         "rumseq"))
 
 ;; ------------------------------------------------------------
 ;; implementation

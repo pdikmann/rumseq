@@ -1,10 +1,14 @@
 #lang racket
 
 ;; midi ruckus
-;; TODO
-;; - scroll events ???
-;; - bpm timer
-;; - mark current pattern in board
+;; TODO / wishlist
+;; - bigger note editor (for easier note-edit)
+;; - more notes in note editor (scrollable view?)
+;; - more tracks (scrollable view?)
+;; - syncable tracks (start/stop lock),
+;; - chained tracks (groups? start/stop together OR play after one another)
+;; - smaller board (current is more than big enough)
+
 
 (require (planet evhan/coremidi)
          ;; gl
@@ -15,6 +19,7 @@
          "editor.rkt"
          "board.rkt"
          "tracks.rkt"
+         "tempo.rkt"
          sgl)
 
 ;; ============================================================ Model
@@ -32,9 +37,14 @@
                             (window-width main-window)
                             (/ (window-height main-window) 2)))
 (define tracks-area (gl-area 0                                ; bottom left
-                             0
+                             40
                              (/ (window-width main-window) 2)
-                             (/ (window-height main-window) 2)))
+                             (- (/ (window-height main-window) 2)
+                                40)))
+(define tempo-area (gl-area 0
+                            0
+                            (/ (window-width main-window) 2)
+                            40))
 
 ;; ============================================================ Function
 (define (draw-views!)
@@ -46,7 +56,8 @@
   ;;
   (draw-editor! editor-area)
   (draw-board! board-area)
-  (draw-tracks! tracks-area))
+  (draw-tracks! tracks-area)
+  (draw-tempo! tempo-area))
 
 ;; (check-and-call -event [editor
 ;;                         board
@@ -64,7 +75,10 @@
         (board-event e x y)))
     (when (gl-area-hit? tracks-area x y)
       (let-values ([(x y) (gl-area-relative-event-position tracks-area e)])
-        (tracks-event e x y)))))
+        (tracks-event e x y)))
+    (when (gl-area-hit? tempo-area x y)
+      (let-values ([(x y) (gl-area-relative-event-position tempo-area e)])
+        (tempo-event e x y)))))
 
 ;; TODO think about keyboard interface after first live test run
 (define (route-char e)

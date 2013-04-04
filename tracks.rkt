@@ -11,7 +11,8 @@
 (provide add-pattern
          draw-tracks!
          tracks-event
-         tracks-char)
+         tracks-char
+         stepper)
 
 (require (planet evhan/coremidi)
          ;;"step-timer.rkt"
@@ -22,6 +23,7 @@
          "gl-geometry.rkt"
          "gl-texture.rkt"
          "gl-letters.rkt"
+         "gl-extend.rkt"
          sgl)
 
 ;; ================================================== Model / Data
@@ -34,13 +36,6 @@
 ;; ============================================================ Functions
 (define (add-pattern trk pt)
   #f)
-
-(define-syntax with-gl-matrix
-  (syntax-rules ()
-    [(_ f ...) (begin
-                 (gl-push-matrix)
-                 f ...
-                 (gl-pop-matrix))]))
 
 ;; ============================================================ GL
 (define beat (quad #:color '(1 0 0 1)))
@@ -73,9 +68,9 @@
                     (checker)
                     (gl-translate 0 2 0)))
   ;; visible beat
-  (with-gl-matrix (gl-scale 10 10 0)
-                  (when (send stepper visible-beat?)
-                    (beat)))
+  ;; (with-gl-matrix (gl-scale 10 10 0)
+  ;;                 (when (send stepper visible-beat?)
+  ;;                   (beat)))
   ;; tracks
   (with-gl-matrix 
    (gl-scale (gl-area-width wndw)
@@ -95,7 +90,7 @@
        (if (send tr get-playing?)
            (gl-color 1 0 0 1)
            (gl-color 0 0 0 1))
-       (gl-font (number->string (send tr get-channel))))
+       (gl-font (number->string (send tr get-channel) 16)))
       ;; a bit to the right for the rest of the data ...
       (gl-translate 4 0 0)
       ;; beat indicator

@@ -15,12 +15,12 @@
     ;; ================================ Model
     (define bpm 120)
     (define hooks '())
-    (define visible-beat #f)
+    (define visible-beat 0)
     ;; ================================ Private
     (define/override (notify)
       (for ([h hooks])
         (h))
-      (set! visible-beat #t)
+      (set! visible-beat (modulo (+ 1 visible-beat) 4))
       (start (floor (/ 15000 bpm)) #t))
     ;; ================================ public
     (define/public (add-hook h)
@@ -28,11 +28,13 @@
     (define/public (run)
       (start (floor (/ 15000 bpm)) #t))
     (define/public (set-bpm i)
-      (set! bpm i))
+      (set! bpm (inexact->exact (floor i))))
     (define/public (get-bpm)
       bpm)
     (define/public (visible-beat?)
-      (if visible-beat
-          (begin (set! visible-beat #f)
-                 #t)
-          #f))))
+      (= visible-beat 0)
+      ;; (if visible-beat
+      ;;     (begin (set! visible-beat #f)
+      ;;            #t)
+      ;;     #f)
+      )))
