@@ -4,6 +4,7 @@
 ;; TODO
 ;; - scroll events ???
 ;; - bpm timer
+;; - mark current pattern in board
 
 (require (planet evhan/coremidi)
          ;; gl
@@ -47,6 +48,10 @@
   (draw-board! board-area)
   (draw-tracks! tracks-area))
 
+;; (check-and-call -event [editor
+;;                         board
+;;                         tracks])
+
 ;; TODO remove code duplication (w/ macro?)
 (define (route-event e)
   (let ([x (send e get-x)]
@@ -62,7 +67,13 @@
         (tracks-event e x y)))))
 
 ;; TODO think about keyboard interface after first live test run
-(define (route-char e) #f)
+(define (route-char e)
+  (let ([x (send e get-x)]
+        [y (send e get-y)]
+        [key (send e get-key-code)])
+    (when (gl-area-hit? tracks-area x y)
+      (let-values ([(x y) (gl-area-relative-event-position tracks-area e)])
+        (tracks-char e x y)))))
 
 ;; ============================================================ to go
 (send canvas paint-with draw-views!)

@@ -19,8 +19,7 @@
 
 (define (lift-pattern pt)
   (set! hold pt)
-  (send canvas set-cursor (make-object cursor% 'hand))
-  )
+  (send canvas set-cursor (make-object cursor% 'hand)))
 
 (define (drop-pattern!)
   (begin0

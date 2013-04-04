@@ -14,10 +14,12 @@
 
 ;; ============================================================ Model / Data
 (define patterns (for/list ([i 30]) (new pattern%)))
+(define selected-pattern-index 0)
 
 ;; ============================================================ GL
 ;; geometry
 (define checker (quad #:color '(.95 .94 .63 1)))
+(define border (quad #:color '(0 0 0 .3)))
 (define white (quad #:color '(1 1 1 1)))
 (define gl-note (quad))
 
@@ -63,6 +65,9 @@
     (gl-translate (modulo i 10)
                   (floor (/ i 10))
                   0)
+    ;; draw active border
+    (when (= i selected-pattern-index)
+      (border))
     ;; translate & scale to 90% (for border)
     (gl-translate 0.05 0.05 0)
     (gl-scale .9 .9 1)
@@ -87,13 +92,8 @@
       (gl-polygon-mode 'front-and-back 'fill)
       (gl-color 0 0 0 1)
       (gl-note)
-      ;; outline
-      ;; (gl-polygon-mode 'front-and-back 'line)
-      ;; (gl-color 0 0 0 1)
-      ;; (gl-note)
       (gl-pop-matrix))
-    (gl-pop-matrix))
-  )
+    (gl-pop-matrix)))
 
 ;; ============================================================ Events
 (define (board-event e x y)
@@ -110,7 +110,8 @@
     (cond
      ;; edit
      [L-down?
-      (edit-pattern selected)]
+      (edit-pattern selected)
+      (set! selected-pattern-index select)]
      ;; clear
      [R-down?
       (set! patterns (append (take patterns select)

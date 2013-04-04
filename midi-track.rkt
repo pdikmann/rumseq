@@ -104,4 +104,5 @@
     (define/public (get-step) raw-index)
     (define/public (get-channel) midi-channel)
     (define/public (get-playing?) playing?)
-    (define/public (get-patterns) sources)))
+    (define/public (get-patterns) sources)
+    (define/public (get-unified-pattern) unified)))

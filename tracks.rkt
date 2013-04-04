@@ -5,10 +5,13 @@
 ;; - each track has a midi channel and an on/off switch
 ;; - tracks turn ON at the next beat and OFF when finished
 
+;; TODO
+;; - more elegant inter-track drag'n'drop (pick single patterns instead of unified from midi-track%)
 
 (provide add-pattern
          draw-tracks!
-         tracks-event)
+         tracks-event
+         tracks-char)
 
 (require (planet evhan/coremidi)
          ;;"step-timer.rkt"
@@ -18,8 +21,8 @@
          "drag-holder.rkt"
          "gl-geometry.rkt"
          "gl-texture.rkt"
-         sgl
-         racket/runtime-path)
+         "gl-letters.rkt"
+         sgl)
 
 ;; ================================================== Model / Data
 (define midi-connection (midi-open))
@@ -44,14 +47,6 @@
 (define checker (quad #:color '(.95 .94 .63 1)))
 (define beat-indicator (quad #:color '(1 1 1 1)))
 (define blackie (quad #:color '(0 0 0 1)))
-(define-runtime-path font-path "gfx/font.png")
-(define letters (for*/list ([y 3]
-                            [x 16])
-                  (let* ([xs (* 1/16 x)]
-                         [xe (+ xs 1/16)]
-                         [ys (* 1/3 y)]
-                         [ye (+ ys 1/3)])
-                    (quad font-path xs xe ys ye))))
 
 (define (draw-tracks! wndw)
   ;; restrict drawing to WNDW area
@@ -92,13 +87,15 @@
       ;; show track data (channel, playing)
       (with-gl-matrix
        (gl-scale 4 1 1)
-       ;;(gl-polygon-mode 'front-and-back 'line)
-       ;;(blackie)
        (gl-polygon-mode 'front-and-back 'fill)
        (gl-scale 1 0.5 1)
+       (gl-translate 0 0.5 0)
        ;;(gl-color 1 1 1 1)
-       (gl-color .8 .9 1 1)
-       ((list-ref letters (send tr get-channel))))
+       ;;(gl-color .8 .9 1 1)
+       (if (send tr get-playing?)
+           (gl-color 1 0 0 1)
+           (gl-color 0 0 0 1))
+       (gl-font (number->string (send tr get-channel))))
       ;; a bit to the right for the rest of the data ...
       (gl-translate 4 0 0)
       ;; beat indicator
@@ -140,21 +137,16 @@
     (cond
      ;; toggle playing
      [(and L-down?
-           in-data-column?
-           (not in-upper-half?))
+           in-data-column?)
       (send selected toggle)]
-     ;; change channel: increment
-     [(and L-down?
-           in-data-column?
-           in-upper-half?)
-      (send selected inc-channel)]
-     ;; change channel: decrement
-     [(and R-down?
-           in-data-column?
-           in-upper-half?)
-      (send selected dec-channel)]
+     ;; drag
+     [(and drag?
+           (not in-data-column?))
+      (when (not (holding?))
+        (lift-pattern (send selected get-unified-pattern)))]
      ;; drop pattern
-     [L-up?
+     [(and L-up?
+           (not in-data-column?))
       (when (holding?)
         (send (list-ref tracks select)
               add-pattern
@@ -164,6 +156,20 @@
      [(and R-down?
            (not in-data-column?))
       (send selected clear)])))
+
+(define (tracks-char e x y)
+  (let* ([select (floor (* y 6))]
+         [selected (list-ref tracks select)]
+         [in-data-column? (< x 4/68)]
+         [key (send e get-key-code)]
+         [wheel-up? (eq? key 'wheel-up)]
+         [wheel-down? (eq? key 'wheel-down)])
+    (cond [(and wheel-up?
+                in-data-column?)
+           (send selected inc-channel)]
+          [(and wheel-down?
+                in-data-column?)
+           (send selected dec-channel)])))
 
 ;; ============================================================ to go
 (for ([mt tracks])
