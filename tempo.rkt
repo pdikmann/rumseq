@@ -4,7 +4,8 @@
 ;; push the tempo
 
 (provide (rename-out [area-draw! draw-tempo!])
-         tempo-event)
+         tempo-event
+         tempo-char)
 
 (require "models.rkt"
          "tracks.rkt"
@@ -14,6 +15,10 @@
 (define beats-per-minute 120)
 (define last-click-time 0)
 (define intervals '())
+
+(define (change-bpm bpm)
+  (set! beats-per-minute bpm)
+  (send stepper set-bpm bpm))
 
 (define (tempo-event e x y)
   (let* ([L-down? (send e button-down? 'left)]
@@ -33,11 +38,17 @@
          [else
           (set! intervals (cons this-interval
                                 intervals))
-          (set! beats-per-minute (/ 60000 (/ (foldl + 0 intervals)
-                                             (length intervals))))
-          (send stepper set-bpm beats-per-minute)])
+          (change-bpm (/ 60000 (/ (foldl + 0 intervals)
+                                  (length intervals))))])
         (set! last-click-time
               this-click-time))])))
+
+(define (tempo-char e x y)
+  (let* ([key (send e get-key-code)]
+         [wheel-up? (eq? key 'wheel-up)]
+         [wheel-down? (eq? key 'wheel-down)])
+    (cond [wheel-up? (change-bpm (+ beats-per-minute 1))]
+          [wheel-down? (change-bpm (- beats-per-minute 1))])))
 
 (define (area-draw! wndw)
   ;; restrict drawing to WNDW area

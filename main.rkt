@@ -3,6 +3,7 @@
 ;; midi ruckus
 ;; TODO / wishlist
 ;; - bigger note editor (for easier note-edit)
+;; - note velocity in note editor (via keypress (1,2,3)?)
 ;; - more notes in note editor (scrollable view?)
 ;; - more tracks (scrollable view?)
 ;; - syncable tracks (start/stop lock),
@@ -87,7 +88,10 @@
         [key (send e get-key-code)])
     (when (gl-area-hit? tracks-area x y)
       (let-values ([(x y) (gl-area-relative-event-position tracks-area e)])
-        (tracks-char e x y)))))
+        (tracks-char e x y)))
+    (when (gl-area-hit? tempo-area x y)
+      (let-values ([(x y) (gl-area-relative-event-position tempo-area e)])
+        (tempo-char e x y)))))
 
 ;; ============================================================ to go
 (send canvas paint-with draw-views!)
