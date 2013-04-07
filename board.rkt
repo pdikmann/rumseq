@@ -15,6 +15,8 @@
 ;; ============================================================ Model / Data
 (define patterns (for/list ([i 30]) (new pattern%)))
 (define selected-pattern-index 0)
+(define x-res 5)
+(define y-res 6)
 
 ;; ============================================================ GL
 ;; geometry
@@ -40,13 +42,13 @@
   ;; model view
   (gl-matrix-mode 'modelview)
   (gl-load-identity)
-  ;; checkerboard, 10 by 3 fields
-  (for* ([x (range 10)]
-         [y (range 3)]
+  ;; checkerboard, x-res by y-res fields
+  (for* ([x (range x-res)]
+         [y (range y-res)]
          #:when (even? (+ x y)))
     (gl-push-matrix)
-    (gl-scale (/ (gl-area-width wndw) 10)
-              (/ (gl-area-height wndw) 3)
+    (gl-scale (/ (gl-area-width wndw) x-res)
+              (/ (gl-area-height wndw) y-res)
               1)
     (gl-translate x y 0)
     (checker)
@@ -58,12 +60,12 @@
         )
     (gl-push-matrix)
     ;; scale to slot size
-    (gl-scale (/ (gl-area-width wndw) 10)
-              (/ (gl-area-height wndw) 3)
+    (gl-scale (/ (gl-area-width wndw) x-res)
+              (/ (gl-area-height wndw) y-res)
               1)
     ;; translate to slot position
-    (gl-translate (modulo i 10)
-                  (floor (/ i 10))
+    (gl-translate (modulo i x-res)
+                  (floor (/ i x-res))
                   0)
     ;; draw active border
     (when (= i selected-pattern-index)
@@ -97,14 +99,14 @@
 
 ;; ============================================================ Events
 (define (board-event e x y)
-  (let* ([select-x (floor (* x 10))]
-         [select-y (floor (* y 3))]
+  (let* ([select-x (floor (* x x-res))]
+         [select-y (floor (* y y-res))]
          [L-down? (send e button-down? 'left)]
          [L-up? (send e button-up? 'left)]
          [R-down? (send e button-down? 'right)]
          ;;[R-up? (send e button-up? 'right)]
          [drag? (send e dragging?)]
-         [select (+ (* select-y 10) select-x)]
+         [select (+ (* select-y x-res) select-x)]
          [selected (list-ref patterns select)]
          )
     (cond

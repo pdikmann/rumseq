@@ -1,6 +1,8 @@
 #lang racket
 
 ;; midi ruckus
+;; FIX
+;; - tracks sometimes receive 'empty patterns' from board.
 ;; TODO / wishlist
 ;; - bigger note editor (for easier note-edit)
 ;; - note velocity in note editor (via keypress (1,2,3)?)
@@ -9,6 +11,7 @@
 ;; - syncable tracks (start/stop lock),
 ;; - chained tracks (groups? start/stop together OR play after one another)
 ;; - smaller board (current is more than big enough)
+;; - saving patterns & tracks (inside images, e.g. png stego?) // serialize things
 
 
 (require (planet evhan/coremidi)
@@ -32,10 +35,10 @@
 (define editor-area (gl-area (/ (window-width main-window) 2) ; bottom right
                              0
                              (/ (window-width main-window) 2)
-                             (/ (window-height main-window) 2)))
+                             (window-height main-window)))
 (define board-area (gl-area 0                                 ; top
                             (/ (window-height main-window) 2)
-                            (window-width main-window)
+                            (/ (window-width main-window) 2)
                             (/ (window-height main-window) 2)))
 (define tracks-area (gl-area 0                                ; bottom left
                              40
