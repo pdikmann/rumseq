@@ -20,6 +20,8 @@
          "gl-timer.rkt"
          ;; other
          "models.rkt"
+         "panels.rkt"
+         ;; functionality
          "editor.rkt"
          "board.rkt"
          "tracks.rkt"
@@ -28,27 +30,39 @@
 
 ;; ============================================================ Model
 ;; gl-areas
+(make-panel (/ (window-width main-window) 2)  ; editor - right side
+            0
+            (/ (window-width main-window) 2)
+            (window-height main-window)
+            #:on-event editor-event
+            ;;#:on-char editor-char
+            #:on-paint draw-editor!)
+(make-panel  0                                ; board - top left
+             (/ (window-height main-window) 2)
+             (/ (window-width main-window) 2)
+             (/ (window-height main-window) 2)
+             #:on-event board-event
+             ;;#:on-char
+             #:on-paint draw-board!)
+(make-panel  0                                ; tracks - bottom left
+             40
+             (/ (window-width main-window) 2)
+             (- (/ (window-height main-window) 2)
+                40)
+             #:on-event tracks-event
+             #:on-char tracks-char
+             #:on-paint draw-tracks!)
+(make-panel  0                                ; tempo - very bottom left
+             0
+             (/ (window-width main-window) 2)
+             40
+             #:on-event tempo-event
+             #:on-char tempo-char
+             #:on-paint draw-tempo!)
 (define full-area (gl-area 0
                            0
                            (window-width main-window)
                            (window-height main-window)))
-(define editor-area (gl-area (/ (window-width main-window) 2) ; bottom right
-                             0
-                             (/ (window-width main-window) 2)
-                             (window-height main-window)))
-(define board-area (gl-area 0                                 ; top
-                            (/ (window-height main-window) 2)
-                            (/ (window-width main-window) 2)
-                            (/ (window-height main-window) 2)))
-(define tracks-area (gl-area 0                                ; bottom left
-                             40
-                             (/ (window-width main-window) 2)
-                             (- (/ (window-height main-window) 2)
-                                40)))
-(define tempo-area (gl-area 0
-                            0
-                            (/ (window-width main-window) 2)
-                            40))
 
 ;; ============================================================ Function
 (define (draw-views!)
@@ -58,43 +72,15 @@
   (gl-clear-color .96 .95 .71 1)
   (gl-clear 'color-buffer-bit 'depth-buffer-bit)
   ;;
-  (draw-editor! editor-area)
-  (draw-board! board-area)
-  (draw-tracks! tracks-area)
-  (draw-tempo! tempo-area))
+  (draw-panels!))
 
-;; (check-and-call -event [editor
-;;                         board
-;;                         tracks])
-
-;; TODO remove code duplication (w/ macro?)
+;; TODO further abstract/generalize into e.g. gl-view (view that has gl-area, on-event and on-char hooks)
 (define (route-event e)
-  (let ([x (send e get-x)]
-        [y (send e get-y)])
-    (when (gl-area-hit? editor-area x y)
-      (let-values ([(x y) (gl-area-relative-event-position editor-area e)])
-        (editor-event e x y)))
-    (when (gl-area-hit? board-area x y)
-      (let-values ([(x y) (gl-area-relative-event-position board-area e)])
-        (board-event e x y)))
-    (when (gl-area-hit? tracks-area x y)
-      (let-values ([(x y) (gl-area-relative-event-position tracks-area e)])
-        (tracks-event e x y)))
-    (when (gl-area-hit? tempo-area x y)
-      (let-values ([(x y) (gl-area-relative-event-position tempo-area e)])
-        (tempo-event e x y)))))
+  (route-to-panel 'on-event e))
 
-;; TODO think about keyboard interface after first live test run
+;; TODO think about keyboard interface
 (define (route-char e)
-  (let ([x (send e get-x)]
-        [y (send e get-y)]
-        [key (send e get-key-code)])
-    (when (gl-area-hit? tracks-area x y)
-      (let-values ([(x y) (gl-area-relative-event-position tracks-area e)])
-        (tracks-char e x y)))
-    (when (gl-area-hit? tempo-area x y)
-      (let-values ([(x y) (gl-area-relative-event-position tempo-area e)])
-        (tempo-char e x y)))))
+  (route-to-panel 'on-char e))
 
 ;; ============================================================ to go
 (send canvas paint-with draw-views!)

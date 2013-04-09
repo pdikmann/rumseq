@@ -129,7 +129,7 @@
         (set! patterns (append (take patterns select)
                                (list (send (drop-pattern!) copy))
                                (drop patterns (+ select 1))))
-        ;; cant use SELECTED here - need fresh reference
+        ;; can't use SELECTED here - need fresh reference
         (edit-pattern (list-ref patterns select)))])))
 
 ;; ------------------------------------------------------------ go!
