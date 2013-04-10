@@ -100,6 +100,7 @@
     (define/public (toggle) (if playing?
                                 (set! stopping? #t)
                                 (set! playing? #t)))
+    (define/public (force-step) (step))
     (define/public (get-hook) step)
     (define/public (get-step) raw-index)
     (define/public (get-channel) midi-channel)

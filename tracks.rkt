@@ -164,7 +164,10 @@
            (send selected inc-channel)]
           [(and wheel-down?
                 in-data-column?)
-           (send selected dec-channel)])))
+           (send selected dec-channel)]
+          [(and (or wheel-up? wheel-down?)
+                (not in-data-column?))
+           (send selected force-step)])))
 
 ;; ============================================================ to go
 (for ([mt tracks])

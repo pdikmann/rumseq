@@ -118,7 +118,8 @@
      [R-down?
       (set! patterns (append (take patterns select)
                              (list (new pattern%))
-                             (drop patterns (+ select 1))))]
+                             (drop patterns (+ select 1))))
+      (edit-pattern (list-ref patterns select))]
      ;; lift
      [drag?
       (when (not (holding?))
