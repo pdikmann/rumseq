@@ -27,9 +27,7 @@
           keyword<?
           #:key car)))
 
-;; ============================================================ Macros
-(define (recur-mult lst v)
-  ;;(displayln lst)
+(define (recur-mult lst v) ; multiply any occurance of numbers <= 1 by v
   (match lst
     [(cons hd tl) (cons (recur-mult hd v)
                         (recur-mult tl v))]
@@ -38,31 +36,7 @@
           (? (curry >= 1))) (* x v)]
     [x x]))
 
-(define-syntax (rel-gl-area stx)
-  (syntax-case stx ()
-    [(_ f ...)
-     #'(apply gl-area
-              (for/list ([token '(f ...)]
-                         [size (in-cycle
-                                (in-list
-                                 (list (window-width main-window)
-                                       (window-height main-window))))])
-                (eval (recur-mult token size))))]))
-
-;; ============================================================ Functions
-(define-syntax (make-panel-macro stx)
-  (syntax-parse stx
-                [(_ x y w h (~seq key:keyword val:expr) ...)
-                 #'(let* ([sorted (sort-keyword-pairs (list (quote key) ...)
-                                                      (list val ...))]
-                          [keys (map car sorted)]
-                          [vals (map cadr sorted)])
-                     (keyword-apply make-panel
-                                    keys
-                                    vals
-                                    (list (rel-gl-area x y w h))))]))
-
-(define (make-panel area
+(define (make-panel! area
                     #:on-event [on-event (lambda (e x y) #t)]
                     #:on-char [on-char (lambda (e x y) #t)]
                     #:on-paint [on-paint (lambda () #t)])
@@ -72,6 +46,38 @@
                             on-paint)
                      panels)))
 
+;; ============================================================ Macros
+(define-syntax (rel-gl-area stx) ; create gl-area relative to window size
+  (syntax-case stx ()
+    [(_ f ...)
+     #'(apply gl-area
+              (for/list ([token '(f ...)]
+                         [size (in-cycle ; alternate width & height
+                                (in-list
+                                 (list (window-width main-window)
+                                       (window-height main-window))))])
+                (eval (recur-mult token size))))]))
+
+(define-syntax (make-panel-macro stx) ; create panels by supplying position, dimension & callbacks
+  ;; fractions for x, y, w or h will be translated into (* frac window-height/width)
+  ;; this can be used in calculations like (- 1 20) meaning: window-height/width minus 20 pixels
+  ;; usage: (make-panel-macro x y width height
+  ;;                          #:on-event fn
+  ;;                          #:on-char fn
+  ;;                          #:on-paint fn)
+  (syntax-parse
+   stx
+   [(_ x y w h (~seq key:keyword val:expr) ...)
+    #'(let* ([sorted (sort-keyword-pairs (list (quote key) ...)
+                                         (list val ...))]
+             [keys (map car sorted)]
+             [vals (map cadr sorted)])
+        (keyword-apply make-panel!
+                       keys
+                       vals
+                       (list (rel-gl-area x y w h))))]))
+
+;; ============================================================ Functions
 (define (draw-panels!)
   (for ([pnl panels])
     ((panel-on-paint pnl) (panel-area pnl))))

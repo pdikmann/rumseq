@@ -1,18 +1,22 @@
 #lang racket
 
-;; midi ruckus
+;; main.rkt
+;; rumseq - the Ridiculously Underpowered Midi SEQuencer
+;; it's like SEQ24 without the features and for Mac OS X only (because of evhan/coremidi)
+;; 
 ;; FIX
 ;; - tracks sometimes receive 'empty patterns' from board.
 ;;   reason: hold is enabled on-drag, which might trigger when cursor is already above different field 
-;; TODO / wishlist
-;; - bigger note editor (for easier note-edit)
+;; TODO / wishlist (prioritized)
 ;; - note velocity in note editor (via keypress (1,2,3)?)
+;; - saving patterns & tracks (inside images, e.g. png stego?) // serialize things
 ;; - more notes in note editor (scrollable view?)
 ;; - more tracks (scrollable view?)
 ;; - syncable tracks (start/stop lock),
 ;; - chained tracks (groups? start/stop together OR play after one another)
+;; DONE
+;; - bigger note editor (for easier note-edit)
 ;; - smaller board (current is more than big enough)
-;; - saving patterns & tracks (inside images, e.g. png stego?) // serialize things
 
 
 (require (planet evhan/coremidi)
@@ -31,36 +35,21 @@
 
 ;; ============================================================ Model
 ;; view panes (sub-windows)
-(make-panel-macro 1/2 ;(/ (window-width main-window) 2)  ; editor - right side
-                  0
-                  1/2 ;(/ (window-width main-window) 2)
-                  1 ;(window-height main-window)
+(make-panel-macro 1/2 0 1/2 1          ; editor - right side
                   #:on-event editor-event
-                  ;;#:on-char editor-char
                   #:on-paint draw-editor!)
-(make-panel-macro 0                 ; board - top left
-                  1/2               ;(/ (window-height main-window) 2)
-                  1/2               ;(/ (window-width main-window) 2)
-                  1/2               ;(/ (window-height main-window) 2)
+(make-panel-macro 0 1/2 1/2 1/2        ; board - top left              
                   #:on-event board-event
-                  ;;#:on-char
                   #:on-paint draw-board!)
-(make-panel-macro 0                     ; tracks - bottom left
-                  40
-                  1/2         ;(/ (window-width main-window) 2)
-                  (- 1/2 40) ;(- (/ (window-height main-window) 2) 40)
+(make-panel-macro 0 40 1/2 (- 1/2 40)  ; tracks - bottom left
                   #:on-event tracks-event
                   #:on-char tracks-char
                   #:on-paint draw-tracks!)
-(make-panel-macro 0                     ; tempo - very bottom left
-                  0
-                  1/2                ;(/ (window-width main-window) 2)
-                  40
+(make-panel-macro 0 0 1/2 40           ; tempo - very bottom left
                   #:on-event tempo-event
                   #:on-char tempo-char
                   #:on-paint draw-tempo!)
-(define full-area (gl-area 0
-                           0
+(define full-area (gl-area 0 0
                            (window-width main-window)
                            (window-height main-window)))
 
