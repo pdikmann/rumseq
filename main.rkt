@@ -63,16 +63,8 @@
   ;;
   (draw-panels!))
 
-;; TODO further abstract/generalize into e.g. gl-view (view that has gl-area, on-event and on-char hooks)
-(define (route-event e)
-  (route-to-panel 'on-event e))
-
-;; TODO think about keyboard interface
-(define (route-char e)
-  (route-to-panel 'on-char e))
-
 ;; ============================================================ to go
 (send canvas paint-with draw-views!)
-(send canvas on-event-with route-event)
-(send canvas on-char-with route-char)
+(send canvas on-event-with (curry route-to-panel 'on-event))
+(send canvas on-char-with (curry route-to-panel 'on-char))
 (send timer start 16)
