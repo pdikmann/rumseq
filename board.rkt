@@ -130,7 +130,8 @@
                                (list (send (drop-pattern!) copy))
                                (drop patterns (+ select 1))))
         ;; can't use SELECTED here - need fresh reference
-        (edit-pattern (list-ref patterns select)))])))
+        (edit-pattern (list-ref patterns select))
+        (set! selected-pattern-index select))])))
 
 ;; ------------------------------------------------------------ go!
 (edit-pattern (list-ref patterns selected-pattern-index))

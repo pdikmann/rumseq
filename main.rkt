@@ -3,6 +3,7 @@
 ;; midi ruckus
 ;; FIX
 ;; - tracks sometimes receive 'empty patterns' from board.
+;;   reason: hold is enabled on-drag, which might trigger when cursor is already above different field 
 ;; TODO / wishlist
 ;; - bigger note editor (for easier note-edit)
 ;; - note velocity in note editor (via keypress (1,2,3)?)
@@ -29,36 +30,35 @@
          sgl)
 
 ;; ============================================================ Model
-;; gl-areas
-(make-panel (/ (window-width main-window) 2)  ; editor - right side
-            0
-            (/ (window-width main-window) 2)
-            (window-height main-window)
-            #:on-event editor-event
-            ;;#:on-char editor-char
-            #:on-paint draw-editor!)
-(make-panel  0                                ; board - top left
-             (/ (window-height main-window) 2)
-             (/ (window-width main-window) 2)
-             (/ (window-height main-window) 2)
-             #:on-event board-event
-             ;;#:on-char
-             #:on-paint draw-board!)
-(make-panel  0                                ; tracks - bottom left
-             40
-             (/ (window-width main-window) 2)
-             (- (/ (window-height main-window) 2)
-                40)
-             #:on-event tracks-event
-             #:on-char tracks-char
-             #:on-paint draw-tracks!)
-(make-panel  0                                ; tempo - very bottom left
-             0
-             (/ (window-width main-window) 2)
-             40
-             #:on-event tempo-event
-             #:on-char tempo-char
-             #:on-paint draw-tempo!)
+;; view panes (sub-windows)
+(make-panel-macro 1/2 ;(/ (window-width main-window) 2)  ; editor - right side
+                  0
+                  1/2 ;(/ (window-width main-window) 2)
+                  1 ;(window-height main-window)
+                  #:on-event editor-event
+                  ;;#:on-char editor-char
+                  #:on-paint draw-editor!)
+(make-panel-macro 0                 ; board - top left
+                  1/2               ;(/ (window-height main-window) 2)
+                  1/2               ;(/ (window-width main-window) 2)
+                  1/2               ;(/ (window-height main-window) 2)
+                  #:on-event board-event
+                  ;;#:on-char
+                  #:on-paint draw-board!)
+(make-panel-macro 0                     ; tracks - bottom left
+                  40
+                  1/2         ;(/ (window-width main-window) 2)
+                  (- 1/2 40) ;(- (/ (window-height main-window) 2) 40)
+                  #:on-event tracks-event
+                  #:on-char tracks-char
+                  #:on-paint draw-tracks!)
+(make-panel-macro 0                     ; tempo - very bottom left
+                  0
+                  1/2                ;(/ (window-width main-window) 2)
+                  40
+                  #:on-event tempo-event
+                  #:on-char tempo-char
+                  #:on-paint draw-tempo!)
 (define full-area (gl-area 0
                            0
                            (window-width main-window)
