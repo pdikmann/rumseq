@@ -47,6 +47,9 @@
                      panels)))
 
 ;; ============================================================ Macros
+(define-namespace-anchor ns-a)
+(define ns (namespace-anchor->namespace ns-a))
+
 (define-syntax (rel-gl-area stx) ; create gl-area relative to window size
   (syntax-case stx ()
     [(_ f ...)
@@ -56,7 +59,7 @@
                                 (in-list
                                  (list (window-width main-window)
                                        (window-height main-window))))])
-                (eval (recur-mult token size))))]))
+                (eval (recur-mult token size) ns)))]))
 
 (define-syntax (make-panel-macro stx) ; create panels by supplying position, dimension & callbacks
   ;; fractions for x, y, w or h will be translated into (* frac window-height/width)
