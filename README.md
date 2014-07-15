@@ -34,6 +34,7 @@ There are 4 Parts to RUMSeq:
 
 #### Tracks
 - `scroll` number to adjust midi channel
+- `scroll` track to skip steps (to ease syncing)
 - `click` number to start / stop playback
 - `left-drag` to Phrase Board to make Phrase from Track *(buggy)*
 - `right-click` to delete Track
