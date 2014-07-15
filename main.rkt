@@ -4,6 +4,10 @@
 ;; rumseq - the Ridiculously Underpowered Midi SEQuencer
 ;; it's like SEQ24 without the features and for Mac OS X only (because of evhan/coremidi)
 ;; 
+;; usage:
+;; 1) edit config.rkt to set midi-port (default is auto-detection)
+;; 2) $ racket main.rkt
+;;
 ;; FIX
 ;; - tracks sometimes receive 'empty patterns' from board.
 ;;   reason: hold is enabled on-drag, which might trigger when cursor is already above different field 

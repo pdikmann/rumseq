@@ -16,6 +16,7 @@
 
 (require (planet evhan/coremidi)
          ;;"step-timer.rkt"
+         "config.rkt"
          "models.rkt"
          "stepper.rkt"
          "midi-track.rkt"
@@ -27,7 +28,11 @@
          sgl)
 
 ;; ================================================== Model / Data
-(define midi-connection (midi-open))
+(define midi-connection
+  (with-handlers ([exn:fail? (lambda (_) #f)]) ; FIX one does not simply return #f
+    (if the-midi-port
+        (midi-open the-midi-port)
+        (midi-open))))
 (define stepper (new stepper%))
 (define tracks (for/list ([i 6])
                  (new midi-track%
