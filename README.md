@@ -1,5 +1,5 @@
 # RUMSeq 
-![Screenshot](http://dikidoom.github.io/rumseq.png)
+![Screenshot](http://pdikmann.github.io/rumseq.png)
 RUMSeq is a Ridiculously Underpowered Midi Sequencer for Mac OS written in [racket](http://racket-lang.org/).
 
 ## Features
